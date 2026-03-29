@@ -26,7 +26,7 @@ async def run_script_and_log(script_name: str, script_path: Path, db_factory) ->
     async with db_factory() as session:
         session.add(
             ScriptLog(script_name=script_name, status=status, output=output or "(empty output)")
-            )
+        )
         await session.commit()
 
 

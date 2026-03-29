@@ -15,6 +15,7 @@ CRON_ALIASES = {
     "weekly": "0 0 * * 0",
 }
 
+
 @dataclass
 class ScriptConfig:
     name: str
@@ -25,12 +26,13 @@ class ScriptConfig:
 
 class ScriptScheduler:
     """Управляет расписанием запуска скриптов и их состоянием (cron/running)."""
+
     def __init__(self) -> None:
         self.scheduler = AsyncIOScheduler()
         self.scripts: dict[str, ScriptConfig] = {
             "monitor_resources": ScriptConfig(
                 "monitor_resources", "monitor_resources.py", "*/1 * * * *", True
-                ),
+            ),
             "disk_report": ScriptConfig("disk_report", "disk_report.py", "*/2 * * * *", True),
             "quote_fetcher": ScriptConfig("quote_fetcher", "quote_fetcher.py", "*/3 * * * *", True),
         }

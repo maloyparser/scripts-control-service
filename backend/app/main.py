@@ -36,6 +36,7 @@ def ensure_script(script_name: str) -> None:
     if script_name not in script_scheduler.scripts:
         raise HTTPException(status_code=404, detail="Script not found")
 
+
 @app.get("/")
 async def root() -> dict:
     return {
@@ -50,6 +51,7 @@ async def root() -> dict:
 @app.get("/api/health")
 async def health() -> dict:
     return {"status": "ok"}
+
 
 @app.get("/api/scripts", response_model=list[ScriptState])
 async def list_scripts(line_by_line: bool = False):

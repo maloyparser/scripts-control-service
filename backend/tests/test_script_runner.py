@@ -21,7 +21,7 @@ async def test_get_logs_returns_latest_first() -> None:
             [
                 ScriptLog(
                     script_name="monitor_resources", status="success", output="old", created_at=now
-                    ),
+                ),
                 ScriptLog(
                     script_name="monitor_resources",
                     status="success",

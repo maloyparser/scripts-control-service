@@ -17,6 +17,7 @@ def test_parse_invalid_cron() -> None:
     with pytest.raises(ValueError):
         scheduler._parse_cron("*/5 * *")
 
+
 def test_cron_aliases_are_supported() -> None:
     scheduler = ScriptScheduler()
     hourly_state = scheduler.set_cron("monitor_resources", "hourly")
