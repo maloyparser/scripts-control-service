@@ -1,5 +1,4 @@
 import pytest
-
 from app.scheduler import ScriptScheduler
 
 

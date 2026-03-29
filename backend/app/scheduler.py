@@ -24,10 +24,13 @@ class ScriptConfig:
 
 
 class ScriptScheduler:
+    """Управляет расписанием запуска скриптов и их состоянием (cron/running)."""
     def __init__(self) -> None:
         self.scheduler = AsyncIOScheduler()
         self.scripts: dict[str, ScriptConfig] = {
-            "monitor_resources": ScriptConfig("monitor_resources", "monitor_resources.py", "*/1 * * * *", True),
+            "monitor_resources": ScriptConfig(
+                "monitor_resources", "monitor_resources.py", "*/1 * * * *", True
+                ),
             "disk_report": ScriptConfig("disk_report", "disk_report.py", "*/2 * * * *", True),
             "quote_fetcher": ScriptConfig("quote_fetcher", "quote_fetcher.py", "*/3 * * * *", True),
         }
@@ -45,6 +48,7 @@ class ScriptScheduler:
 
     @staticmethod
     def _normalize_cron(cron_expr: str) -> str:
+        """Нормализует cron-выражение, подставляя алиас при необходимости."""
         expr = cron_expr.strip().lower()
         return CRON_ALIASES.get(expr, cron_expr.strip())
 
@@ -53,7 +57,8 @@ class ScriptScheduler:
         fields = cron_expr.split()
         if len(fields) != 5:
             raise ValueError(
-                "Неверный cron. Используйте формат '*/5 * * * *' или алиасы: minutely/hourly/daily/weekly"
+                "Неверный cron. Используйте формат '*/5 * * * *' "
+                "или алиасы: minutely/hourly/daily/weekly"
             )
         minute, hour, day, month, day_of_week = fields
         return CronTrigger(
@@ -65,6 +70,7 @@ class ScriptScheduler:
         )
 
     def _sync_jobs(self) -> None:
+        """Синхронизирует jobs планировщика с текущей конфигурацией `self.scripts`."""
         for cfg in self.scripts.values():
             if self.scheduler.get_job(cfg.name):
                 self.scheduler.remove_job(cfg.name)
@@ -88,6 +94,7 @@ class ScriptScheduler:
         ]
 
     def set_cron(self, name: str, cron: str) -> dict:
+        """Обновляет cron для скрипта, валидирует его и пересобирает расписание."""
         cfg = self.scripts[name]
         normalized_cron = self._normalize_cron(cron)
         self._parse_cron(normalized_cron)
@@ -96,6 +103,7 @@ class ScriptScheduler:
         return {"name": cfg.name, "cron": cfg.cron, "running": cfg.running}
 
     def set_running(self, name: str, running: bool) -> dict:
+        """Включает/выключает запуск скрипта и пересинхронизирует jobs."""
         cfg = self.scripts[name]
         cfg.running = running
         self._sync_jobs()

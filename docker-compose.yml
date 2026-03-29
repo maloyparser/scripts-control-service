@@ -3,9 +3,9 @@ services:
     image: postgres:17-alpine
     container_name: scripts-db
     environment:
-      POSTGRES_DB: scripts_control
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: app
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
@@ -15,10 +15,12 @@ services:
     build:
       context: ./backend
     container_name: scripts-backend
+    env_file:
+      - ./.env.example
     environment:
-      DATABASE_URL: postgresql+asyncpg://app:app@db:5432/scripts_control
-      MONITOR_DOMAINS: https://example.com,https://python.org,https://github.com
-      SCRIPTS_DIR: /app/scripts
+      DATABASE_URL: ${DATABASE_URL}
+      MONITOR_DOMAINS: ${MONITOR_DOMAINS}
+      SCRIPTS_DIR: ${SCRIPTS_DIR}
     depends_on:
       - db
     ports:
