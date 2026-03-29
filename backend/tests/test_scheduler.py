@@ -1,5 +1,4 @@
 import pytest
-
 from app.scheduler import ScriptScheduler
 
 
@@ -17,6 +16,7 @@ def test_parse_invalid_cron() -> None:
     scheduler = ScriptScheduler()
     with pytest.raises(ValueError):
         scheduler._parse_cron("*/5 * *")
+
 
 def test_cron_aliases_are_supported() -> None:
     scheduler = ScriptScheduler()

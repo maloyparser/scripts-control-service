@@ -8,6 +8,11 @@ from .models import ScriptLog
 
 
 async def run_script_and_log(script_name: str, script_path: Path, db_factory) -> None:
+    """
+    Запускает внешний python-скрипт, собирает stdout/stderr и пишет результат в БД.
+
+    `db_factory` ожидается как фабрика async-сессий SQLAlchemy.
+    """
     process = await asyncio.create_subprocess_exec(
         "python",
         str(script_path),
@@ -18,12 +23,15 @@ async def run_script_and_log(script_name: str, script_path: Path, db_factory) ->
     output = stdout.decode("utf-8", errors="ignore").strip()
     status = "success" if process.returncode == 0 else "failed"
 
-    async with db_factory() as session:  # type: AsyncSession
-        session.add(ScriptLog(script_name=script_name, status=status, output=output or "(empty output)"))
+    async with db_factory() as session:
+        session.add(
+            ScriptLog(script_name=script_name, status=status, output=output or "(empty output)")
+        )
         await session.commit()
 
 
 async def get_logs(session: AsyncSession, script_name: str, limit: int = 50) -> list[ScriptLog]:
+    """Возвращает последние логи скрипта в обратном хронологическом порядке."""
     query = (
         select(ScriptLog)
         .where(ScriptLog.script_name == script_name)

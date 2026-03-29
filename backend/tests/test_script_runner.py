@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta
 
 import pytest
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-
 from app.db import Base
 from app.models import ScriptLog
 from app.script_runner import get_logs
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 
 @pytest.mark.asyncio
@@ -20,7 +19,9 @@ async def test_get_logs_returns_latest_first() -> None:
     async with session_factory() as session:
         session.add_all(
             [
-                ScriptLog(script_name="monitor_resources", status="success", output="old", created_at=now),
+                ScriptLog(
+                    script_name="monitor_resources", status="success", output="old", created_at=now
+                ),
                 ScriptLog(
                     script_name="monitor_resources",
                     status="success",

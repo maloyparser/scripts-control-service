@@ -1,18 +1,20 @@
-from contextlib import asynccontextmanager
 import json
+from contextlib import asynccontextmanager
+
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import Base, engine, get_db
-from .schemas import CronUpdate, LogOut, ScriptState
 from .scheduler import script_scheduler
+from .schemas import CronUpdate, LogOut, ScriptState
 from .script_runner import get_logs
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Инициализирует БД и планировщик на старте приложения и останавливает их при shutdown."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     script_scheduler.start()
@@ -34,6 +36,7 @@ def ensure_script(script_name: str) -> None:
     if script_name not in script_scheduler.scripts:
         raise HTTPException(status_code=404, detail="Script not found")
 
+
 @app.get("/")
 async def root() -> dict:
     return {
@@ -41,6 +44,7 @@ async def root() -> dict:
         "status": "ok",
         "docs": "/docs",
         "health": "/api/health",
+        "scripts": script_scheduler.list_states(),
     }
 
 
@@ -48,8 +52,14 @@ async def root() -> dict:
 async def health() -> dict:
     return {"status": "ok"}
 
+
 @app.get("/api/scripts", response_model=list[ScriptState])
 async def list_scripts(line_by_line: bool = False):
+    """
+    Возвращает текущее состояние скриптов.
+
+    При `line_by_line=true` отдает NDJSON для построчного потокового чтения.
+    """
     states = [ScriptState(**item) for item in script_scheduler.list_states()]
     if line_by_line:
         payload = "\n".join(json.dumps(state.model_dump(), ensure_ascii=False) for state in states)
