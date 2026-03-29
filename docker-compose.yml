@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: scripts-db
+    environment:
+      POSTGRES_DB: scripts_control
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: scripts-backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://app:app@db:5432/scripts_control
+      MONITOR_DOMAINS: https://example.com,https://python.org,https://github.com
+      SCRIPTS_DIR: /app/scripts
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: scripts-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  db_data:

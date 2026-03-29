@@ -1,0 +1,11 @@
+:root { font-family: Arial, sans-serif; }
+body { margin: 0; background: #f4f7fb; color: #1d2a3a; }
+main { max-width: 1000px; margin: 20px auto; padding: 0 16px; }
+.card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+button { border: 0; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+button.start { background: #3ca85e; color: white; }
+button.pause { background: #d46a6a; color: white; }
+button.refresh { background: #5478db; color: white; }
+input { padding: 8px; min-width: 180px; }
+pre { background: #0f172a; color: #d5e4ff; padding: 10px; border-radius: 6px; max-height: 220px; overflow: auto; }
